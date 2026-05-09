@@ -135,7 +135,7 @@ export function AnalyzerTab() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="analyze-mask">Masque</Label>
+              <Label htmlFor="analyze-mask">Masque ou CIDR</Label>
               <Input
                 id="analyze-mask"
                 value={maskInput}
