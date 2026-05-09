@@ -12,7 +12,6 @@ import {
 } from "@/lib/ip/validate";
 import { parseBinaryIPv4, parseDottedIPv4 } from "@/lib/ip/parse";
 import { toBinaryDotted, toDotted } from "@/lib/ip/format";
-import { toHex, toUint32 } from "@/lib/ip/extras";
 import { sanitizeIPInput } from "@/hooks/useAutoFormatIP";
 
 export function ConverterTab() {
@@ -21,7 +20,7 @@ export function ConverterTab() {
 
   const decimalToBinary = React.useMemo(() => {
     const trimmed = decimalInput.trim();
-    if (trimmed === "") return { ok: true as const, value: "", hex: "", uint: "" };
+    if (trimmed === "") return { ok: true as const, value: "" };
     if (!isValidDottedIPv4(trimmed)) {
       return {
         ok: false as const,
@@ -29,17 +28,12 @@ export function ConverterTab() {
       };
     }
     const ip = parseDottedIPv4(trimmed);
-    return {
-      ok: true as const,
-      value: toBinaryDotted(ip),
-      hex: toHex(ip),
-      uint: toUint32(ip),
-    };
+    return { ok: true as const, value: toBinaryDotted(ip) };
   }, [decimalInput]);
 
   const binaryToDecimal = React.useMemo(() => {
     const trimmed = binaryInput.trim();
-    if (trimmed === "") return { ok: true as const, value: "", hex: "", uint: "" };
+    if (trimmed === "") return { ok: true as const, value: "" };
     if (!isValidBinaryIPv4(trimmed)) {
       return {
         ok: false as const,
@@ -48,13 +42,14 @@ export function ConverterTab() {
       };
     }
     const ip = parseBinaryIPv4(trimmed);
-    return {
-      ok: true as const,
-      value: toDotted(ip),
-      hex: toHex(ip),
-      uint: toUint32(ip),
-    };
+    return { ok: true as const, value: toDotted(ip) };
   }, [binaryInput]);
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setTimeout(() => {
+      e.target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 300);
+  };
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -72,6 +67,7 @@ export function ConverterTab() {
               id="dec-input"
               value={decimalInput}
               onChange={(e) => setDecimalInput(sanitizeIPInput(e.target.value))}
+              onFocus={handleFocus}
               placeholder="192.168.1.10"
               inputMode="numeric"
               autoComplete="off"
@@ -81,11 +77,7 @@ export function ConverterTab() {
           </div>
           {!decimalToBinary.ok && <ErrorMessage message={decimalToBinary.error} />}
           {decimalToBinary.ok && decimalToBinary.value && (
-            <div className="space-y-3">
-              <FormatRow label="Binaire" value={decimalToBinary.value} />
-              <FormatRow label="Hexadécimal" value={decimalToBinary.hex} />
-              <FormatRow label="Entier" value={decimalToBinary.uint} />
-            </div>
+            <FormatRow label="Binaire" value={decimalToBinary.value} />
           )}
         </CardContent>
       </Card>
@@ -104,6 +96,7 @@ export function ConverterTab() {
               id="bin-input"
               value={binaryInput}
               onChange={(e) => setBinaryInput(e.target.value)}
+              onFocus={handleFocus}
               placeholder="11000000.10101000.00000001.00001010"
               autoComplete="off"
               spellCheck={false}
@@ -112,11 +105,7 @@ export function ConverterTab() {
           </div>
           {!binaryToDecimal.ok && <ErrorMessage message={binaryToDecimal.error} />}
           {binaryToDecimal.ok && binaryToDecimal.value && (
-            <div className="space-y-3">
-              <FormatRow label="Décimale" value={binaryToDecimal.value} />
-              <FormatRow label="Hexadécimal" value={binaryToDecimal.hex} />
-              <FormatRow label="Entier" value={binaryToDecimal.uint} />
-            </div>
+            <FormatRow label="Décimale" value={binaryToDecimal.value} />
           )}
         </CardContent>
       </Card>
